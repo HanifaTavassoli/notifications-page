@@ -7,6 +7,27 @@ import NotificationCount from './NotificationCount';
 import NotificationList from './NotificationList';
 
 function Notification({ style }) {
+	const [notifList, setNotifList] = useState(notifData);
+
+	const decreasNotif = () => notifList.filter((item) => !item.read).length;
+	const [unRead, setUnRead] = useState(decreasNotif);
+
+	const readHandler = (item) => {
+		setUnRead(decreasNotif);
+		setNotifList(
+			notifList.map((list) => (JSON.stringify(list) === JSON.stringify(item) ? { ...list, read: true } : { ...list }))
+		);
+	};
+
+	useEffect(() => {
+		setUnRead(decreasNotif);
+	}, [notifList]);
+
+	const clearAllHandler = () => {
+		setNotifList(notifList.map((item) => ({ ...item, read: true })));
+		setUnRead('');
+	};
+
 	return (
 		<div className={style}>
 			<NotificationHeader>
@@ -26,7 +47,10 @@ function Notification({ style }) {
 					)}
 				</div>
 				{unRead ? (
-					<Button style="text-xs text-navy-dark tracking-tight hover:text-navy-blue font-semibold">
+					<Button
+						style="text-xs text-navy-dark tracking-tight hover:text-navy-blue font-semibold"
+						clearHandler={clearAllHandler}
+					>
 						Mark all as read
 					</Button>
 				) : (
@@ -38,6 +62,7 @@ function Notification({ style }) {
 					<NotificationList
 						item={{ ...item }}
 						key={item.id}
+						readHandler={readHandler}
 						style={`${item.read ? '' : 'bg-navy-lighter'} rounded-md relative`}
 					/>
 				))}
